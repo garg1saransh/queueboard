@@ -11,6 +11,15 @@ const envSchema = z.object({
   JOB_SUCCESS_RATE: z.coerce.number().min(0).max(1).default(0.7),
   JOB_MIN_DELAY_MS: z.coerce.number().int().positive().default(1000),
   JOB_MAX_DELAY_MS: z.coerce.number().int().positive().default(5000),
+  /** When true, BullMQ worker runs inside the web Node process (free single-service hosts). */
+  RUN_WORKER_IN_WEB: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform((value) => {
+      if (typeof value === "boolean") return value;
+      if (value === undefined) return false;
+      return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+    }),
 });
 
 export type Env = z.infer<typeof envSchema>;

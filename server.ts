@@ -24,6 +24,24 @@ async function main(): Promise<void> {
 
   initSocketServer(httpServer);
 
+  // Free single-service hosts (e.g. Render Free) cannot run a separate worker.
+  // When enabled, the BullMQ consumer runs in this same Node process.
+  if (env.RUN_WORKER_IN_WEB) {
+    const { startJobWorker } = await import("./src/server/worker/start-worker");
+    const worker = startJobWorker();
+    console.info("[web] BullMQ worker started in-process (RUN_WORKER_IN_WEB=true)");
+
+    const shutdownWorker = async () => {
+      await worker.close();
+    };
+    process.on("SIGINT", () => {
+      void shutdownWorker();
+    });
+    process.on("SIGTERM", () => {
+      void shutdownWorker();
+    });
+  }
+
   httpServer.listen(port, hostname, () => {
     console.info(
       `[web] ready on http://${hostname}:${port} (${env.NODE_ENV})`,

@@ -180,22 +180,35 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Deployment
 
-Do **not** run the BullMQ worker inside a serverless request handler.
+### Free deploy on Render (recommended)
 
-Recommended shape:
+Uses one free **Web** service, free **Postgres**, and free **Key Value** (Redis-compatible). Render Free cannot host a separate background worker, so the BullMQ consumer runs **in-process** when `RUN_WORKER_IN_WEB=true` (set automatically by `render.yaml`).
+
+1. Push this repo to GitHub.
+2. Open [Render Blueprints](https://dashboard.render.com/blueprints) → **New Blueprint Instance** → select the repo.
+3. Apply the blueprint (`render.yaml`). Wait for the first deploy.
+4. Copy the web URL (e.g. `https://queueboard-web.onrender.com`).
+5. In the web service **Environment**, set `NEXT_PUBLIC_APP_URL` to that URL → **Save** → **Manual Deploy**.
+6. Open the URL — submit a batch and confirm items move to Completed/Failed live.
+
+Free web services sleep after idle; the first request after sleep can take ~30–60s.
+
+Locally, keep using separate processes (`npm run dev:all`). Do **not** set `RUN_WORKER_IN_WEB` for day-to-day development.
+
+### Paid / multi-service shape
 
 | Component | Example hosts |
 |-----------|----------------|
 | Web (Next.js + Socket.IO via `server.ts`) | Railway, Render, Fly.io, any Node VM |
-| Worker (`npm run worker`) | Second service on Railway / Render / Fly.io |
+| Worker (`npm run worker`) | Second service (omit `RUN_WORKER_IN_WEB`) |
 | PostgreSQL | Neon, Supabase, Railway, Render |
 | Redis | Upstash (BullMQ-compatible), Redis Cloud, Railway |
 
 ### Hosting notes
 
-- **Vercel serverless** is a poor fit for this architecture: no durable worker process, and Socket.IO is awkward/unsupported in the same way as a long-lived Node server. If you want Vercel for the UI only, split Socket.IO onto a Node service and point `NEXT_PUBLIC_APP_URL` (or a dedicated socket URL) at that host.
+- **Vercel serverless** is a poor fit: no durable worker process, and Socket.IO needs a long-lived Node server.
 - Scale workers horizontally carefully; item claim uses `updateMany` where `status = PENDING` so only one worker processes a given item.
-- Run `prisma migrate deploy` on release.
+- Run `prisma migrate deploy` on release (included in the Render build command).
 
 ## API
 

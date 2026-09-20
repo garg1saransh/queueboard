@@ -1,13 +1,16 @@
-# Render Blueprint — Queueboard
-# Docs: https://render.com/docs/infrastructure-as-code
+# Render Blueprint — Queueboard (fully free)
+# https://dashboard.render.com/blueprints
 #
-# Free web + free Postgres + free Key Value (Redis-compatible).
-# Background workers cannot use the Free plan — Starter is required (~$7/mo).
+# Creates free Postgres + free Key Value (Redis-compatible) + free web service.
+# The BullMQ worker runs in-process on the web service (RUN_WORKER_IN_WEB=true)
+# because Render Free cannot host a separate background worker.
+#
+# Locally, prefer separate processes: npm run dev:all
 #
 # After first deploy:
-# 1. Copy the web service URL
-# 2. Set NEXT_PUBLIC_APP_URL on web + worker to that URL
-# 3. Redeploy web (and worker)
+# 1. Copy the web URL (e.g. https://queueboard-web.onrender.com)
+# 2. Set NEXT_PUBLIC_APP_URL to that URL on the web service
+# 3. Redeploy the web service
 
 databases:
   - name: queueboard-db
@@ -33,6 +36,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: RUN_WORKER_IN_WEB
+        value: "true"
       - key: DATABASE_URL
         fromDatabase:
           name: queueboard-db
@@ -46,24 +51,3 @@ services:
         sync: false
       - key: PORT
         value: "10000"
-
-  - type: worker
-    name: queueboard-worker
-    runtime: node
-    plan: starter
-    buildCommand: npm install && npx prisma generate
-    startCommand: npx tsx worker/index.ts
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: queueboard-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: queueboard-redis
-          type: keyvalue
-          property: connectionString
-      - key: NEXT_PUBLIC_APP_URL
-        sync: false
