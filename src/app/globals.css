@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+:root {
+  --background: #d7e4f2;
+  --foreground: #06101c;
+  --surface: #f8fbff;
+  --surface-muted: #e7f0f9;
+  --border: #b6c7db;
+  --accent: #0284c7;
+  --accent-dark: #0369a1;
+  --accent-bright: #7dd3fc;
+  --cta: #ea580c;
+  --cta-dark: #c2410c;
+  --danger: #e11d48;
+  --success: #059669;
+  --warning: #d97706;
+  --info: #2563eb;
+  --shadow: 0 32px 90px -50px rgba(6, 16, 28, 0.58);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-bright: var(--accent-bright);
+  --color-cta: var(--cta);
+  --color-cta-dark: var(--cta-dark);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 95% 60% at 8% -15%, rgba(125, 211, 252, 0.45), transparent 58%),
+    radial-gradient(ellipse 70% 50% at 95% 5%, rgba(234, 88, 12, 0.16), transparent 52%),
+    radial-gradient(ellipse 55% 35% at 50% 110%, rgba(2, 132, 199, 0.18), transparent 60%),
+    linear-gradient(160deg, #eef5fc 0%, #d9e7f5 48%, #cddced 100%);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+  min-height: 100%;
+}
+
+::selection {
+  background: rgba(2, 132, 199, 0.22);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes progress-sheen {
+  from {
+    transform: translateX(-130%);
+  }
+  to {
+    transform: translateX(230%);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0) scale(1.04);
+  }
+}
+
+@keyframes flow {
+  0% {
+    stroke-dashoffset: 48;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-up-delay-1 {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.7s ease-in-out infinite;
+}
+
+.animate-drift {
+  animation: drift 9s ease-in-out infinite;
+}
+
+.flow-line {
+  stroke-dasharray: 6 6;
+  animation: flow 1.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-up-delay-1,
+  .animate-fade-up-delay-2,
+  .animate-pulse-dot,
+  .animate-drift,
+  .flow-line {
+    animation: none;
+  }
+}
