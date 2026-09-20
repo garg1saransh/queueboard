@@ -1,14 +1,13 @@
 # Render Blueprint — Queueboard
-# https://dashboard.render.com/blueprints
+# Docs: https://render.com/docs/infrastructure-as-code
 #
-# Creates:
-# - Web service (Next.js + Socket.IO via server.ts)
-# - Worker service (BullMQ consumer)
-# - PostgreSQL
-# - Redis
+# Free web + free Postgres + free Key Value (Redis-compatible).
+# Background workers cannot use the Free plan — Starter is required (~$7/mo).
 #
-# After first deploy, set NEXT_PUBLIC_APP_URL to your web service URL
-# and redeploy the web service once.
+# After first deploy:
+# 1. Copy the web service URL
+# 2. Set NEXT_PUBLIC_APP_URL on web + worker to that URL
+# 3. Redeploy web (and worker)
 
 databases:
   - name: queueboard-db
@@ -17,11 +16,12 @@ databases:
     user: queueboard
 
 services:
-  - type: redis
+  - type: keyvalue
     name: queueboard-redis
     plan: free
-    maxmemoryPolicy: noeviction
     ipAllowList: []
+    maxmemoryPolicy: noeviction
+    persistenceMode: off
 
   - type: web
     name: queueboard-web
@@ -40,7 +40,7 @@ services:
       - key: REDIS_URL
         fromService:
           name: queueboard-redis
-          type: redis
+          type: keyvalue
           property: connectionString
       - key: NEXT_PUBLIC_APP_URL
         sync: false
@@ -50,7 +50,7 @@ services:
   - type: worker
     name: queueboard-worker
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: npm install && npx prisma generate
     startCommand: npx tsx worker/index.ts
     envVars:
@@ -63,7 +63,7 @@ services:
       - key: REDIS_URL
         fromService:
           name: queueboard-redis
-          type: redis
+          type: keyvalue
           property: connectionString
       - key: NEXT_PUBLIC_APP_URL
         sync: false
