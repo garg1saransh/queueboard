@@ -195,6 +195,20 @@ Free web services sleep after idle; the first request after sleep can take ~30â€
 
 Locally, keep using separate processes (`npm run dev:all`). Do **not** set `RUN_WORKER_IN_WEB` for day-to-day development.
 
+### Docker / Self-Hosted Production Deploy
+
+You can deploy the complete standalone production stack (PostgreSQL + Redis + Queueboard Web/Worker) using Docker Compose:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+This starts:
+- PostgreSQL on port `5432`
+- Redis on port `6379`
+- Queueboard Web app on port `3000` (runs migrations automatically and handles worker tasks in-process)
+
+
 ### Paid / multi-service shape
 
 | Component | Example hosts |
